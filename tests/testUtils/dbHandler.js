@@ -1,21 +1,33 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 
 /**
- * Connect to MongoDB Atlas test database
- * Uses your existing MongoDB Atlas connection
+ * Test database handler.
+ *
+ * - When DB_CONNECTION_STRING is set (the legacy setup) the suite runs against that
+ *   cluster using a separate `grocery_db_test` database, exactly as before.
+ * - Otherwise an in-process MongoDB (mongodb-memory-server) is started so the suite
+ *   runs with no external dependencies. The first run downloads the mongod binary.
  */
+let memoryServer = null;
+
+async function resolveTestUri() {
+  if (process.env.DB_CONNECTION_STRING) {
+    return process.env.DB_CONNECTION_STRING.replace(/\/\?/, "/grocery_db_test?");
+  }
+  const { MongoMemoryServer } = require("mongodb-memory-server");
+  if (!memoryServer) {
+    memoryServer = await MongoMemoryServer.create({ instance: { dbName: "grocery_db_test" } });
+  }
+  return memoryServer.getUri("grocery_db_test");
+}
+
 async function connectTestDB() {
-  // Close existing connection if any
   if (mongoose.connection.readyState !== 0) {
     await mongoose.connection.close();
   }
 
-  // Use your MongoDB Atlas connection with a separate test database
-  const testDbUri = process.env.DB_CONNECTION_STRING.replace(
-    /\/\?/,
-    "/grocery_db_test?"
-  );
+  const testDbUri = await resolveTestUri();
 
   await mongoose.connect(testDbUri, {
     maxPoolSize: 10,
@@ -23,7 +35,7 @@ async function connectTestDB() {
     socketTimeoutMS: 45000,
   });
 
-  console.log("✅ Connected to MongoDB Atlas test database");
+  console.log(memoryServer ? "Connected to in-memory MongoDB test database" : "Connected to MongoDB Atlas test database");
 }
 
 /**
@@ -32,16 +44,21 @@ async function connectTestDB() {
 async function closeTestDB() {
   try {
     if (mongoose.connection.readyState !== 0) {
-      // Drop the entire test database (grocery_db_test)
       await mongoose.connection.dropDatabase();
-      console.log("✅ Test database dropped");
-
-      // Close connection
+      console.log("Test database dropped");
       await mongoose.connection.close(true);
-      console.log("✅ Test database connection closed");
+      console.log("Test database connection closed");
     }
   } catch (error) {
     console.error("Test DB cleanup error:", error.message);
+  }
+  if (memoryServer) {
+    try {
+      await memoryServer.stop();
+    } catch (error) {
+      console.error("In-memory MongoDB stop error:", error.message);
+    }
+    memoryServer = null;
   }
 }
 
@@ -54,24 +71,17 @@ async function clearTestDB() {
     try {
       await collections[key].deleteMany({}, { timeout: 5000 });
     } catch (error) {
-      // Ignore individual collection errors
       console.warn(`Failed to clear collection ${key}:`, error.message);
     }
   }
 }
 
-/**
- * Setup test database (alias for connectTestDB)
- */
 async function setupTestDB() {
-  return await connectTestDB();
+  return connectTestDB();
 }
 
-/**
- * Cleanup test database (alias for closeTestDB)
- */
 async function cleanupTestDB() {
-  return await closeTestDB();
+  return closeTestDB();
 }
 
 module.exports = {

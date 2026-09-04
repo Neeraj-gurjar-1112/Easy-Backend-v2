@@ -1,0 +1,10 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    { "name": "All services (server.js)", "type": "node", "request": "launch", "program": "${workspaceFolder}/server.js", "envFile": "${workspaceFolder}/.env", "console": "integratedTerminal" },
+    { "name": "App service", "type": "node", "request": "launch", "program": "${workspaceFolder}/src/app/index.js", "envFile": "${workspaceFolder}/.env", "console": "integratedTerminal" },
+    { "name": "Admin service", "type": "node", "request": "launch", "program": "${workspaceFolder}/src/admin/index.js", "envFile": "${workspaceFolder}/.env", "console": "integratedTerminal" },
+    { "name": "Socket service", "type": "node", "request": "launch", "program": "${workspaceFolder}/src/socket/index.js", "envFile": "${workspaceFolder}/.env", "console": "integratedTerminal" },
+    { "name": "Jest current file", "type": "node", "request": "launch", "program": "${workspaceFolder}/node_modules/jest/bin/jest.js", "args": ["--runInBand", "${relativeFile}"], "console": "integratedTerminal" }
+  ]
+}

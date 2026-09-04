@@ -201,6 +201,7 @@ const EXPECTED_WARN_PATTERNS = [
 
 // Patterns of expected console.log messages that should be suppressed
 const EXPECTED_LOG_PATTERNS = [
+  /injected env (d+) from .env/,
   /\[ADMIN\] Coupon (created|updated|deleted):/,
   /\[METRICS\] (Fetched|Computed):/,
   /at log \(routes\/(admin|delivery|orders|seller|uploads|clientsController)\.js:\d+:\d+\)/,
