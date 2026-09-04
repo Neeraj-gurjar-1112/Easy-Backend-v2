@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+Dockerfile
+.git
+.gitignore
+.vscode
+.env
+.env.*
+*.local
+*.log
+**/*.pem
+coverage
+tests
+docs
+.DS_Store

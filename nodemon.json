@@ -1,0 +1,4 @@
+{
+  "ignore": ["logs/*", "uploads/*", "tests/*", "coverage/*", "docs/*"],
+  "ext": "js,json"
+}

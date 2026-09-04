@@ -1,0 +1,47 @@
+module.exports = {
+  testEnvironment: "node",
+  coverageDirectory: "coverage",
+  testEnvironmentOptions: {
+    NODE_ENV: "test",
+  },
+  // Mirror of _moduleAliases in package.json (module-alias is not used by Jest)
+  moduleNameMapper: {
+    "^@root/(.*)$": "<rootDir>/$1",
+    "^@lib/(.*)$": "<rootDir>/lib/$1",
+    "^@models$": "<rootDir>/lib/models",
+    "^@models/(.*)$": "<rootDir>/lib/models/$1",
+    "^@util/(.*)$": "<rootDir>/lib/util/$1",
+    "^@middleware/(.*)$": "<rootDir>/lib/middleware/$1",
+    "^@events/(.*)$": "<rootDir>/lib/events/$1",
+    "^@push$": "<rootDir>/lib/push",
+    "^@push/(.*)$": "<rootDir>/lib/push/$1",
+    "^@sms/(.*)$": "<rootDir>/lib/sms/$1",
+    "^@app/(.*)$": "<rootDir>/src/app/$1",
+    "^@admin/(.*)$": "<rootDir>/src/admin/$1",
+    "^@socket/(.*)$": "<rootDir>/src/socket/$1",
+  },
+  collectCoverageFrom: [
+    "lib/**/*.js",
+    "src/**/*.js",
+    "!**/node_modules/**",
+    "!**/tests/**",
+  ],
+  testMatch: ["**/tests/**/*.test.js"],
+  setupFilesAfterEnv: ["<rootDir>/tests/setup.js"],
+  coverageThreshold: {
+    global: {
+      branches: 10,
+      functions: 10,
+      lines: 15,
+      statements: 15,
+    },
+  },
+  testTimeout: 60000,
+  verbose: true,
+  forceExit: true,
+  detectOpenHandles: false,
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true,
+  maxWorkers: 1,
+};
