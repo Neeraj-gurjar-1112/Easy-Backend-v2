@@ -81,19 +81,25 @@ describe("Isolated Error Handler Tests", () => {
        * Production risk: ZERO - defensive code for rare database failures.
        */
 
-      // Verify the route has proper error handling structure
+      // Verify the handler has proper error handling structure.
+      // The handler is located by content, not by line number, so this assertion
+      // survives refactors (v2 moved the route body into a controller class).
       const fs = require("fs");
-      const routeContent = fs.readFileSync("routes/products.js", "utf-8");
+      const path = require("path");
+      const source = fs.readFileSync(
+        path.join(__dirname, "..", "src", "app", "routes", "products", "ProductsController.js"),
+        "utf-8"
+      );
+      const lines = source.split("\n");
 
-      // Check that lines 59-60 contain the error handler
-      const lines = routeContent.split("\n");
-      const line59 = lines[58].trim(); // 0-indexed
-      const line60 = lines[59].trim();
+      const logIndex = lines.findIndex(
+        (l) => l.includes("console.error") && l.includes("Error fetching products")
+      );
+      expect(logIndex).toBeGreaterThan(-1);
 
-      expect(line59).toContain("console.error");
-      expect(line59).toContain("Error fetching products");
-      expect(line60).toContain("return res.status(500)");
-      expect(line60).toContain("Failed to fetch products");
+      const responseLine = lines[logIndex + 1].trim();
+      expect(responseLine).toContain("return res.status(500)");
+      expect(responseLine).toContain("Failed to fetch products");
     });
   });
 
@@ -134,19 +140,24 @@ describe("Isolated Error Handler Tests", () => {
        * Production risk: ZERO - defensive code for rare database failures.
        */
 
-      // Verify the route has proper error handling structure
+      // Verify the handler has proper error handling structure.
+      // Located by content, not by line number, so this survives refactors.
       const fs = require("fs");
-      const routeContent = fs.readFileSync("routes/restaurants.js", "utf-8");
+      const path = require("path");
+      const source = fs.readFileSync(
+        path.join(__dirname, "..", "src", "app", "routes", "restaurants", "RestaurantsController.js"),
+        "utf-8"
+      );
+      const lines = source.split("\n");
 
-      // Check that lines 99-100 contain the error handler
-      const lines = routeContent.split("\n");
-      const line99 = lines[98].trim(); // 0-indexed
-      const line100 = lines[99].trim();
+      const logIndex = lines.findIndex(
+        (l) => l.includes("console.error") && l.includes("restaurants list error")
+      );
+      expect(logIndex).toBeGreaterThan(-1);
 
-      expect(line99).toContain("console.error");
-      expect(line99).toContain("restaurants list error");
-      expect(line100).toContain("res.status(500)");
-      expect(line100).toContain("Failed to load restaurants");
+      const responseLine = lines[logIndex + 1].trim();
+      expect(responseLine).toContain("res.status(500)");
+      expect(responseLine).toContain("Failed to load restaurants");
     });
   });
 });
