@@ -203,7 +203,7 @@ class LegalController {
 </head>
 <body>
     <h1>🗑️ Delete Your Account</h1>
-
+    
     <div class="warning">
         <strong>⚠️ Warning:</strong> Account deletion is permanent and cannot be undone.
     </div>
@@ -218,7 +218,7 @@ class LegalController {
             <li>✓ Device tokens and preferences</li>
             <li>✓ Firebase authentication account</li>
         </ul>
-
+        
         <h3>What Will Be Retained:</h3>
         <ul>
             <li>• Order history (anonymized for business records)</li>
@@ -228,7 +228,7 @@ class LegalController {
 
     <div class="delete-options">
         <h2>How to Delete Your Account:</h2>
-
+        
         <div class="option">
             <h3>Option 1: In-App Deletion (Recommended)</h3>
             <ol>
@@ -281,7 +281,7 @@ class LegalController {
     </div>
 
     <p style="text-align: center; color: #7f8c8d; margin-top: 40px;">
-        <a href="/legal/privacy-policy">Privacy Policy</a> |
+        <a href="/legal/privacy-policy">Privacy Policy</a> | 
         <a href="mailto:support@easyapp.com">Contact Support</a>
     </p>
 </body>
