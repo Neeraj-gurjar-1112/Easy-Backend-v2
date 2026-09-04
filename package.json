@@ -30,7 +30,9 @@
     "test:serial": "jest --runInBand --coverage --verbose",
     "test:watch": "jest --watch",
     "test:unit": "jest tests/ --testPathIgnorePatterns=integration",
-    "test:integration": "jest tests/ --testPathPattern=integration"
+    "test:integration": "jest tests/ --testPathPattern=integration",
+    "e2e": "node scripts/e2e-check.js",
+    "parity": "node scripts/parity-check.js"
   },
   "_moduleAliases": {
     "@root": ".",
