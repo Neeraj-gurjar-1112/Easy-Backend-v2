@@ -69,8 +69,30 @@ npm install
 npm run dev                     # everything on :8080 (API + admin + socket), nodemon
 npm run dev:split               # app :8080, admin :8081, socket :8082 as separate processes
 npm test                        # jest (uses mongodb-memory-server, no real DB needed)
+node scripts/list-routes.js     # print the whole route table (diff it after any route change)
 ```
 Docker: one image; `SERVICE=all|app|admin|socket` picks what the container runs.
+
+## Before you trust `npm test`
+
+~1300 tests fail, and they failed in the old backend too (same 6 sample suites give
+108 failed / 75 passed in both). Causes and the suggested clean-up are in
+[docs/TEST-STATUS.md](docs/TEST-STATUS.md). Do not treat a red suite as "the refactor broke it"
+without checking that file first.
+
+`scripts/parity-check.js` replays 174 requests against the old backend and this one on
+identically seeded databases and diffs the responses (last run: 174/174 identical). Use it after
+any further large refactor:
+
+```
+LEGACY_DIR=d:/Easy-Backend-backend SCRATCH=<tmp dir> node scripts/parity-check.js
+```
+
+## Further reading
+
+- [docs/MIGRATION-v1-to-v2.md](docs/MIGRATION-v1-to-v2.md) — old → new file mapping, deployment notes
+- [docs/TEST-STATUS.md](docs/TEST-STATUS.md) — why the suite is red and how to fix it
+- `docs/legacy/` — the deployment, CDN, Redis and FCM guides kept from the old repo
 
 ## Legacy mapping (from the old single-folder backend)
 
