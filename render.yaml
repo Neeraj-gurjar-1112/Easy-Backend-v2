@@ -1,0 +1,39 @@
+# Render blueprint — one free web service running all three Easy services in one process
+# (server.js). Database = MongoDB Atlas (free M0), connection string set as a secret in the dashboard.
+#
+# Deploy: Render → New → Blueprint → pick this repo → set DB_CONNECTION_STRING when asked.
+# After the first deploy, seed once from your laptop:
+#   DB_CONNECTION_STRING=<atlas uri> DB_NAME=easy_app SEED_ADMIN_PASSWORD=<pick one> node scripts/seed-delivery-agents.js
+#
+# Node runtime (not the Dockerfile): simpler, and the admin API does not need the Dockerfile's web-client build stage.
+services:
+  - type: web
+    name: easy-backend-v2
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SERVICE_NAME
+        value: all
+      - key: DB_NAME
+        value: easy_app
+      - key: DB_CONNECTION_STRING
+        sync: false # paste the Atlas URI in the dashboard (never commit it)
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: INTERNAL_API_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://easy-admin-frontend.vercel.app,http://localhost:3000
+      - key: LOG_LEVEL
+        value: info
+      - key: GEOCODE_SERVER_FALLBACK
+        value: "0"
