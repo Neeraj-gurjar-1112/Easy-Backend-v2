@@ -22,6 +22,7 @@ const agent = (overrides = {}) => ({
   email: "test.agent@example.com",
   phone: "+91 98765 43210",
   vehicle_type: "bike",
+  password: "Agent@12345",
   approved: true,
   active: true,
   available: true,
@@ -228,13 +229,36 @@ describe("POST /api/admin/delivery-agents — create", () => {
     );
   });
 
-  test("rejects a duplicate email", async () => {
+  test("rejects a duplicate email as a field error", async () => {
     const res = await request(app)
       .post("/api/admin/delivery-agents")
       .set(auth())
       .send(agent({ email: "rahul@example.com" }))
       .expect(400);
     expect(res.body.error).toBe("Email is already registered");
+    expect(res.body.details).toEqual([
+      { field: "email", message: "Email is already registered" },
+    ]);
+  });
+
+  test("requires a password on create (8–72 chars)", async () => {
+    const missing = await request(app)
+      .post("/api/admin/delivery-agents")
+      .set(auth())
+      .send(agent({ password: undefined }))
+      .expect(400);
+    expect(missing.body.details).toEqual([
+      { field: "password", message: "Password is required" },
+    ]);
+
+    const tooLong = await request(app)
+      .post("/api/admin/delivery-agents")
+      .set(auth())
+      .send(agent({ email: "long.pw@example.com", password: "x".repeat(73) }))
+      .expect(400);
+    expect(tooLong.body.details[0].message).toBe(
+      "Password cannot exceed 72 characters",
+    );
   });
 
   test("requires admin auth", async () => {

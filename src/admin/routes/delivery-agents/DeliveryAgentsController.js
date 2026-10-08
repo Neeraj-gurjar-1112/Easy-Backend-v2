@@ -32,6 +32,14 @@ function toPublic(doc) {
   return obj;
 }
 
+/** 400 body for a duplicate email — field-level so the form can show it under the Email input. */
+function emailTaken() {
+  return {
+    error: "Email is already registered",
+    details: [{ field: "email", message: "Email is already registered" }],
+  };
+}
+
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -325,7 +333,7 @@ class DeliveryAgentsController {
         .select("_id")
         .lean();
       if (existing) {
-        return res.status(400).json({ error: "Email is already registered" });
+        return res.status(400).json(emailTaken());
       }
 
       const agent = new DeliveryAgent({
@@ -342,7 +350,7 @@ class DeliveryAgentsController {
         .json({ message: "Delivery agent created", agent: toPublic(agent) });
     } catch (error) {
       if (error?.code === 11000) {
-        return res.status(400).json({ error: "Email is already registered" });
+        return res.status(400).json(emailTaken());
       }
       if (error?.name === "ValidationError") {
         const details = Object.values(error.errors).map((e) => ({
@@ -377,8 +385,7 @@ class DeliveryAgentsController {
         })
           .select("_id")
           .lean();
-        if (taken)
-          return res.status(400).json({ error: "Email is already registered" });
+        if (taken) return res.status(400).json(emailTaken());
       }
 
       for (const key of UPDATABLE_FIELDS) {
@@ -391,7 +398,7 @@ class DeliveryAgentsController {
       res.json(toPublic(agent));
     } catch (error) {
       if (error?.code === 11000) {
-        return res.status(400).json({ error: "Email is already registered" });
+        return res.status(400).json(emailTaken());
       }
       if (error?.name === "ValidationError") {
         const details = Object.values(error.errors).map((e) => ({
