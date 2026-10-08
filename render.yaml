@@ -17,7 +17,7 @@ services:
     runtime: node
     plan: free
     region: singapore
-    buildCommand: npm ci
+    buildCommand: npm ci --include=dev # NODE_ENV=production would otherwise skip mongodb-memory-server (devDependency)
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
