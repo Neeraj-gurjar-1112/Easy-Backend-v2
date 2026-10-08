@@ -1,18 +1,23 @@
-# Render blueprint — one free web service running all three Easy services in one process
-# (server.js). Database = MongoDB Atlas (free M0), connection string set as a secret in the dashboard.
+# Render blueprint — one free web service running all three Easy services in one process (server.js).
 #
-# Deploy: Render → New → Blueprint → pick this repo → set DB_CONNECTION_STRING when asked.
-# After the first deploy, seed once from your laptop:
-#   DB_CONNECTION_STRING=<atlas uri> DB_NAME=easy_app SEED_ADMIN_PASSWORD=<pick one> node scripts/seed-delivery-agents.js
+# Two ways to get a database:
+#   A. Zero-setup demo (default here): USE_MEMORY_DB=1 runs MongoDB inside the process and
+#      SEED_ON_BOOT=1 inserts the 32 demo agents + the admin on every boot. Data resets whenever
+#      the free instance restarts or sleeps — fine for a review, never for real data.
+#   B. Persistent: create a free MongoDB Atlas M0 cluster, set DB_CONNECTION_STRING to its URI and
+#      USE_MEMORY_DB=0 in the Render dashboard, then seed once from your laptop:
+#        DB_CONNECTION_STRING=<atlas uri> DB_NAME=easy_app SEED_ADMIN_PASSWORD=<pick one> node scripts/seed-delivery-agents.js
 #
+# Deploy: Render → New → Blueprint → pick this repo → type SEED_ADMIN_PASSWORD when asked (QA login).
 # Node runtime (not the Dockerfile): simpler, and the admin API does not need the Dockerfile's web-client build stage.
+# `npm ci` keeps devDependencies because mongodb-memory-server lives there; its postinstall downloads mongod at build time.
 services:
   - type: web
     name: easy-backend-v2
     runtime: node
     plan: free
     region: singapore
-    buildCommand: npm ci --omit=dev
+    buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
@@ -21,10 +26,14 @@ services:
         value: production
       - key: SERVICE_NAME
         value: all
+      - key: USE_MEMORY_DB
+        value: "1"
+      - key: SEED_ON_BOOT
+        value: "1"
       - key: DB_NAME
         value: easy_app
-      - key: DB_CONNECTION_STRING
-        sync: false # paste the Atlas URI in the dashboard (never commit it)
+      - key: SEED_ADMIN_PASSWORD
+        sync: false # the QA/demo admin password — type it in the dashboard, share it on the Notion page only
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_API_KEY
